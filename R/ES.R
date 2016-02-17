@@ -145,6 +145,18 @@ ETL <- CVaR <- ES <- function (R=NULL , p=0.95, ...,
                 stop("number of items in weights not equal to number of columns in R")
             }
         }
+        
+        # check for any zero-return columns
+        for(cn in columns) {
+            if(all(R[,cn]==0)) {
+                res <- as.matrix(rep(NA,ncol(R)))
+                rownames(res) <- "ES"
+                colnames(res) <- columns
+                warning(c("ES() found at least one zero-return column '",cn,"'. Each column's result was set to NA."))
+                return(res)
+            }
+        }
+        
         # weights = checkData(weights, method="matrix", ...) #is this necessary?
         # TODO check for date overlap with R and weights
         if(clean!="none" & is.null(mu)){ # the assumption here is that if you've passed in any moments, we'll leave R alone
