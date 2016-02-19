@@ -244,8 +244,10 @@ ETL <- CVaR <- ES <- function (R=NULL , p=0.95, ...,
                 historical = { return(ES.historical.portfolio(R, p,weights)) },
                 kernel = { return(ES.kernel.portfolio(R=R,p=p,w=weights)) }
             )
-
-        } # end component portfolio switch
+        }, # end component portfolio switch
+        {
+            stop("No such portfolio_method exists")
+        }  # end non-existent portfolio_method switch
     )
 
 } # end ES wrapper function
