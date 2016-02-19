@@ -67,22 +67,28 @@ function(R, method = c("none","boudt","geltner"), alpha=.01, ...)
     for(column in 1:columns) { # for each asset passed in as R
         #R.clean = zoo(NA, order.by=time(R))
 
-        switch(method,
-            none = {
-		R.clean = R[,column]
-	    },
-	    boudt = {
-                R.clean = clean.boudt(na.omit(R[ , column, drop=FALSE]),alpha=alpha,...)[[1]]
-            },
-	    geltner = {
-		R.clean = Return.Geltner(R[,column])
-	    }
-        )
+        # catch 'zero-column' exceptions:
+        if(!all(R[, column]==0) && method!="none") {
+            
+            switch(method,
+                   none = {
+                       R.clean = R[,column]
+                   },
+                   boudt = {
+                       R.clean = clean.boudt(na.omit(R[ , column, drop=FALSE]),alpha=alpha,...)[[1]]
+                   },
+                   geltner = {
+                       R.clean = Return.Geltner(R[,column])
+                   }
+            )
+        } else {
+            warning(c("Return.clean() found a zero-return column '", column, "' : not using clean method '", method, "' for this column.")) # : ", R[,column]))
+            R.clean = R[,column]
+        }
 
         if(column == 1) {
             result = R.clean
-        }
-        else {
+        } else {
             result = cbind(result, R.clean)
         }
     }
