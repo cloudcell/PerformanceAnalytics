@@ -145,18 +145,6 @@ ETL <- CVaR <- ES <- function (R=NULL , p=0.95, ...,
                 stop("number of items in weights not equal to number of columns in R")
             }
         }
-        
-        # # check for any zero-return columns
-        # for(cn in columns) {
-        #     if(all(R[,cn]==0)) {
-        #         res <- as.matrix(rep(NA,ncol(R)))
-        #         rownames(res) <- "ES"
-        #         colnames(res) <- columns
-        #         warning(c("ES() found at least one zero-return column '",cn,"'. Each column's result was set to NA."))
-        #         return(res)
-        #     }
-        # }
-        
         # weights = checkData(weights, method="matrix", ...) #is this necessary?
         # TODO check for date overlap with R and weights
         if(clean!="none" & is.null(mu)){ # the assumption here is that if you've passed in any moments, we'll leave R alone
@@ -206,11 +194,11 @@ ETL <- CVaR <- ES <- function (R=NULL , p=0.95, ...,
             columns<-ncol(rES)
             for(column in 1:columns) {
                 tmp=rES[,column]
-                   if(is.nan(tmp)) {
-                       message(c("ES calculation produces NaN for column: ",column," : ",rES[,column]))
-                       rES[,column] <- NA
-                       next
-                   }
+                if(is.nan(tmp)) {
+                    message(c("ES calculation produces unreliable result (NaN) for column: ",column," : ",rES[,column]))
+                    rES[,column] <- NA
+                    next
+                }
                 if (eval(0 > tmp)) { #eval added previously to get around Sweave bitching
                     message(c("ES calculation produces unreliable result (inverse risk) for column: ",column," : ",rES[,column]))
                     # set ES to NA, since inverse risk is unreasonable
